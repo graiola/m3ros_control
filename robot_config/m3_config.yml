@@ -1,6 +1,5 @@
 ########### M3 CONFIG ######################
 factory_rt_libs:
-  - /home/meka/catkin_workspace/install_isolated/lib/libkdl_kinematics.so
   - /home/meka/m3ros_control/lib/libm3ros_control.so
 
 rt_components:
