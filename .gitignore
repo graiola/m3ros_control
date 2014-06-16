@@ -13,11 +13,6 @@ build
 *.pb.cpp
 *.la
 *.lo
-<<<<<<< HEAD
 *.kate-swp*
-=======
-autom4te.cache/
-bin/
-lib/
-*.user
->>>>>>> master
+*_pb2.py
+
