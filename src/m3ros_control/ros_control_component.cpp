@@ -8,7 +8,6 @@ using namespace m3;
 
 bool RosControlComponent::LinkDependentComponents()
 { 
-	
 	//Need to find at least one arm
 	bot_shr_ptr_=(m3::M3Humanoid*) factory->GetComponent(bot_name_);
 	if (bot_shr_ptr_==NULL)
@@ -37,6 +36,14 @@ bool RosControlComponent::ReadConfig(const char* cfg_filename)
 		return false;
 	//GetYamlDoc(cfg_filename, doc);
 	doc["humanoid"] >> bot_name_;
+	doc["hw_interface_mode"] >> hw_interface_mode_;
+	if(hw_interface_mode_=="effort" ||  hw_interface_mode_=="position")
+		m3rt::M3_INFO("Selected hardware interface mode %s for component %s\n",hw_interface_mode_.c_str(),GetName().c_str());
+	else
+	{
+		m3rt::M3_INFO("Wrong hardware interface mode %s for component %s\n",hw_interface_mode_.c_str(),GetName().c_str());
+		return false;
+	}
 	
 	return true;
 }

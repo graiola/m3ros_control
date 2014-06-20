@@ -38,13 +38,20 @@ public:
 	typedef std::map<std::string,std::pair<M3Chain,int> > map_t;
 	typedef map_t::iterator map_it_t;
 	
-	MekaRobotHW(m3::M3Humanoid* bot_shr_ptr):bot_shr_ptr_(NULL)
+	MekaRobotHW(m3::M3Humanoid* bot_shr_ptr, std::string hw_interface_mode):bot_shr_ptr_(NULL)
 	{
 		using namespace hardware_interface;
 
 		assert(bot_shr_ptr != NULL);
 		bot_shr_ptr_ = bot_shr_ptr;
 		
+		if(hw_interface_mode == "position")
+		   joint_mode_ = POSITION;
+		else if(hw_interface_mode == "effort")
+		   joint_mode_ = EFFORT;
+		else
+		   joint_mode_ = POSITION;
+
 		// Create a map with the ndofs
 		//chains_map_["right_arm"] = std::make_pair(RIGHT_ARM,bot_shr_ptr->GetNdof(RIGHT_ARM));
 		//chains_map_["left_arm"] = std::make_pair(LEFT_ARM,bot_shr_ptr->GetNdof(LEFT_ARM));
@@ -103,23 +110,6 @@ public:
 		registerInterface(&ej_interface_);
 		//registerInterface(&vj_interface_);
 		
-		//jm_interface_.registerHandle(JointModeHandle("joint_mode", joint_mode_));
-		//registerInterface(&jm_interface_);
-		
-		
-
-		
-		//std::set<std::string>::iterator it;
-		//for (it = pj_interface_.getClaims().begin(); it != pj_interface_.getClaims().end(); it++) {
-		//	std::cout << *it;
-		//}
-		/*std::cout<<"EF"<<std::endl;
-		for (std::set<std::string>::iterator it = ej_interface_.getClaims().begin(); it != ej_interface_.getClaims().end(); it++)
-		{
-			std::cout<< *it << " " <<std::endl; // Note the "*" here
-		}
-		getchar();*/
-		
 	}
 
 	void read()
@@ -142,92 +132,47 @@ public:
 	void write()
 	{
 		bot_shr_ptr_->SetMotorPowerOn();
+
 		// RIGHT_ARM
-		/*for(int i=0; i<ndof_right_arm_; i++)
+		for(int i=0; i<ndof_right_arm_; i++)
 		{	
 			bot_shr_ptr_->SetStiffness(RIGHT_ARM,i,1.0);
 			bot_shr_ptr_->SetSlewRateProportional(RIGHT_ARM,i,1.0);
-			switch (joint_mode_[i])
-			{	
-				case hardware_interface::MODE_POSITION:
+			switch (joint_mode_)
+			{
+				case POSITION:
 					bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i);
 					bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i,RAD2DEG(joint_position_command_[i]));
 					break;
-				case hardware_interface::MODE_VELOCITY:
-					break;
-				case hardware_interface::MODE_EFFORT:
+				case EFFORT:
 					bot_shr_ptr_->SetModeTorqueGc(RIGHT_ARM,i);
 					bot_shr_ptr_->SetTorque_mNm(RIGHT_ARM,i,m2mm(joint_effort_command_[i]));
 					break;
 				default:
-					bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i);
-					bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i,RAD2DEG(joint_position_command_[i]));
+					break;
 			}
-		}*/
+		}
 		// LEFT_ARM
-		/*for(int i=ndof_right_arm_; i<ndof_; i++)
+		for(int i=ndof_right_arm_; i<ndof_; i++)
 		{	
 			bot_shr_ptr_->SetStiffness(LEFT_ARM,i-ndof_right_arm_,1.0);
 			bot_shr_ptr_->SetSlewRateProportional(LEFT_ARM,i-ndof_right_arm_,1.0);
 			switch (joint_mode_)
 			{	
-				case hardware_interface::MODE_POSITION:
+				case POSITION:
 					bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i-ndof_right_arm_);
 					bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_position_command_[i]));
 					break;
-				case hardware_interface::MODE_VELOCITY:
-					break;
-				case hardware_interface::MODE_EFFORT:
+				case EFFORT:
 					bot_shr_ptr_->SetModeTorqueGc(LEFT_ARM,i-ndof_right_arm_);
 					bot_shr_ptr_->SetTorque_mNm(LEFT_ARM,i-ndof_right_arm_,m2mm(joint_effort_command_[i]));
 					break;
 				default:
-					bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i-ndof_right_arm_);
-					bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_position_command_[i]));
+					break;
 			}
-		}*/
-		
-		//hardware_interface::PositionJointInterface* ptr = get<hardware_interface::PositionJointInterface>();
-		//std::cout<<ptr->getClaims().size()<<std::endl;
-		
-		// RIGHT_ARM
-		for(int i=0; i<ndof_right_arm_; i++)
-		{	
-			//if(pj_interface_.getClaims().find(joint_name_[i])!=pj_interface_.getClaims().end())
-			//{	
-				bot_shr_ptr_->SetStiffness(RIGHT_ARM,i,1.0);
-				bot_shr_ptr_->SetSlewRateProportional(RIGHT_ARM,i,1.0);
-				bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i);
-				bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i,RAD2DEG(joint_position_command_[i]));
-			//}
-				
-			/*if(ej_interface_.getClaims().find(joint_name_[i])!=ej_interface_.getClaims().end())
-			{	
-				bot_shr_ptr_->SetModeTorqueGc(RIGHT_ARM,i);
-				bot_shr_ptr_->SetTorque_mNm(RIGHT_ARM,i,m2mm(joint_effort_command_[i]));
-			}*/
 		}
-		// LEFT_ARM
-		/*for(int i=ndof_right_arm_; i<ndof_; i++)
-		{	
-			if(pj_interface_.getClaims().find(joint_name_[i])!=pj_interface_.getClaims().end())
-			{
-				bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i);
-				bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i,RAD2DEG(joint_position_command_[i]));
-			}
-				
-			if(ej_interface_.getClaims().find(joint_name_[i])!=ej_interface_.getClaims().end())
-			{	
-				bot_shr_ptr_->SetModeTorqueGc(LEFT_ARM,i);
-				bot_shr_ptr_->SetTorque_mNm(LEFT_ARM,i,m2mm(joint_effort_command_[i]));
-			}
-		}*/
-		
-		
-
-
-		
 	}
+	
 private:
 	
 	int ndof_right_arm_, ndof_left_arm_, ndof_;
@@ -239,8 +184,8 @@ private:
 	hardware_interface::EffortJointInterface   ej_interface_;
 	//hardware_interface::VelocityJointInterface vj_interface_;
 
-	//hardware_interface::JointModeInterface jm_interface_;
-	//int* joint_mode_;
+	enum joint_mode_t {POSITION,EFFORT};
+	joint_mode_t joint_mode_;
 	
 	std::vector<double> joint_effort_command_;
 	std::vector<double> joint_effort_;
@@ -293,7 +238,7 @@ class RosControlComponent : public m3rt::M3Component
 				spinner_ptr_ = new ros::AsyncSpinner(1); // Use one thread for the external communications
 				spinner_ptr_->start();
 				// Create the Meka Hardware interface
-				hw_ptr_ = new MekaRobotHW(bot);
+				hw_ptr_ = new MekaRobotHW(bot,hw_interface_mode_);
 				// Create the controller manager
 				cm_ptr_ = new controller_manager::ControllerManager(hw_ptr_, *ros_nh_ptr_);
 			}
@@ -315,7 +260,7 @@ class RosControlComponent : public m3rt::M3Component
 		}
 
 	private:
-		std::string bot_name_;
+		std::string bot_name_, hw_interface_mode_;
 		m3::M3Humanoid* bot_shr_ptr_;
 		ros::Duration period_;
 		ros::NodeHandle* ros_nh_ptr_;

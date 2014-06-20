@@ -1,2 +1,3 @@
 name: ros_control_component_test
 humanoid: m3humanoid_right_left_arm_head_mr12
+hw_interface_mode: position #effort
