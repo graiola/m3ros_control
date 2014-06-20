@@ -200,7 +200,7 @@ private:
 class RosControlComponent : public m3rt::M3Component
 {
 	public:
-		RosControlComponent():m3rt::M3Component(MAX_PRIORITY),bot_shr_ptr_(NULL),ros_nh_ptr_(NULL),spinner_ptr_(NULL),hw_ptr_(NULL),cm_ptr_(NULL){RegisterVersion("default",DEFAULT);}
+		RosControlComponent():m3rt::M3Component(MAX_PRIORITY),bot_shr_ptr_(NULL),ros_nh_ptr_(NULL),spinner_ptr_(NULL),hw_ptr_(NULL),cm_ptr_(NULL),skip_loop_(false){RegisterVersion("default",DEFAULT);}
 		~RosControlComponent(){if(spinner_ptr_!=NULL) delete spinner_ptr_; if(hw_ptr_!=NULL) delete hw_ptr_; if(ros_nh_ptr_!=NULL) delete ros_nh_ptr_; if(cm_ptr_!=NULL) delete cm_ptr_;};
 		
 		google::protobuf::Message*  GetCommand(){return &status_;} //NOTE make abstract M3Component happy
@@ -268,6 +268,8 @@ class RosControlComponent : public m3rt::M3Component
 		MekaRobotHW* hw_ptr_;
 		controller_manager::ControllerManager* cm_ptr_;
 		enum {DEFAULT};
+		bool skip_loop_;
+		long long loop_cnt_;
 };
 
 
