@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(m3ros_control)
+#cmake_minimum_required(VERSION 2.8.3)
+#project(m3ros_control)
 
 set(CMAKE_CXX_FLAGS "-Wall -std=c++0x")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
