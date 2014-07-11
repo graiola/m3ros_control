@@ -40,3 +40,8 @@ include_directories(
 ###############################################################################
 # Add the main project src dir that contains all the others
 add_subdirectory(src/m3ros_control)
+
+
+###############################################################################
+# Generate the setup.bash
+configure_file(setup.bash.in ${PROJECT_ROOT}/setup.bash)

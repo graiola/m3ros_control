@@ -17,3 +17,6 @@ build
 *.kate-swp*
 *_pb2.py
 lib/
+
+# This will be generated
+setup.bash
