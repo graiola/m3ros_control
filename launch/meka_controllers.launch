@@ -1,0 +1,12 @@
+<launch>
+<!-- Robot parameter server -->
+<rosparam file="$(find m3ros_control)/config/hardware_controllers.yaml" command="load" />
+<!-- Spawn the controllers -->
+<!--node pkg="controller_manager" type="spawner" output="screen" name="right_th" args="right_position_controller"/>
+<node pkg="controller_manager" type="spawner" output="screen" name="left_th" args="left_position_controller"/-->
+
+<node pkg="controller_manager" type="spawner" output="screen" name="right_position_trajectory_controller" args="right_position_trajectory_controller"/>
+<node pkg="controller_manager" type="spawner" output="screen" name="left_position_trajectory_controller" args="left_position_trajectory_controller"/>
+
+</launch>
+
