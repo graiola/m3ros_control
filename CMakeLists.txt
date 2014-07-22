@@ -34,9 +34,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBRARY_OUTPUT_DIRECTORY})
 # Include directories
 include_directories(
     ${PROJECT_INCLUDE_DIR}
-    ${CMAKE_BINARY_DIR}/src # Include this directory for the generated protobufs headers
+    ${CMAKE_CURRENT_BINARY_DIR}/src # Include this directory for the generated protobufs headers
 )
-
 ###############################################################################
 # Add the main project src dir that contains all the others
 add_subdirectory(src/m3ros_control)
