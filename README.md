@@ -16,6 +16,4 @@ Then make sure roscore is started and overlay the config file for the m3 server 
 source m3ros_control/setup.bash
 ```
 
-Note: currently robot_config/m3_config.yml contains an hardcoded path (the library to be dlopened), make sure it's correct. A temporary fix would be to install the libs.
-
 >Authors: Gennaro Raiola, Antoine Hoarau
