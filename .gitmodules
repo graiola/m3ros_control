@@ -1,0 +1,3 @@
+[submodule "meka-cmake-modules"]
+	path = meka-cmake-modules
+	url = git@bitbucket.org:ensta/meka-cmake-modules.git
