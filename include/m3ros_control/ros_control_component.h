@@ -106,7 +106,7 @@ public:
         joint_position_.resize(ndof_);
         joint_position_command_.resize(ndof_);
         joint_velocity_.resize(ndof_);
-        //joint_velocity_command_.resize(ndof_);
+        joint_velocity_command_.resize(ndof_);
         joint_effort_.resize(ndof_);
         joint_effort_command_.resize(ndof_);
 
@@ -128,7 +128,7 @@ public:
             js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
             pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
             ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
-            //vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
+            vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
 
             //jm_interface_.registerHandle(JointModeHandle(joint_name_[i], &joint_mode_[i]));
 
@@ -140,7 +140,7 @@ public:
             js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
             pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
             ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
-            //vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
+            vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
 
             //jm_interface_.registerHandle(JointModeHandle(joint_name_[i], &joint_mode_[i]));
 
@@ -149,7 +149,7 @@ public:
         registerInterface(&js_interface_);
         registerInterface(&pj_interface_);
         registerInterface(&ej_interface_);
-        //registerInterface(&vj_interface_);
+        registerInterface(&vj_interface_);
 
     }
 
@@ -181,6 +181,10 @@ public:
             bot_shr_ptr_->SetSlewRateProportional(RIGHT_ARM,i,1.0);
             switch (joint_mode_)
             {
+            case VELOCITY:
+                bot_shr_ptr_->SetModeThetaDotGc(RIGHT_ARM,i-ndof_right_arm_);
+                bot_shr_ptr_->SetThetaDotDeg(RIGHT_ARM,i-ndof_right_arm_,RAD2DEG(joint_velocity_command_[i]));
+                break;
             case POSITION:
                 bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i);
                 bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i,RAD2DEG(joint_position_command_[i]));
@@ -200,6 +204,10 @@ public:
             bot_shr_ptr_->SetSlewRateProportional(LEFT_ARM,i-ndof_right_arm_,1.0);
             switch (joint_mode_)
             {
+            case VELOCITY:
+                bot_shr_ptr_->SetModeThetaDotGc(LEFT_ARM,i-ndof_right_arm_);
+                bot_shr_ptr_->SetThetaDotDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_velocity_command_[i]));
+                break;
             case POSITION:
                 bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i-ndof_right_arm_);
                 bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_position_command_[i]));
@@ -223,9 +231,9 @@ private:
     hardware_interface::JointStateInterface    js_interface_;
     hardware_interface::PositionJointInterface pj_interface_;
     hardware_interface::EffortJointInterface   ej_interface_;
-    //hardware_interface::VelocityJointInterface vj_interface_;
+    hardware_interface::VelocityJointInterface vj_interface_;
 
-    enum joint_mode_t {POSITION,EFFORT};
+    enum joint_mode_t {POSITION,EFFORT,VELOCITY};
     joint_mode_t joint_mode_;
 
     std::vector<double> joint_effort_command_;
@@ -233,7 +241,7 @@ private:
     std::vector<double> joint_position_command_;
     std::vector<double> joint_position_;
     std::vector<double> joint_velocity_;
-    //std::vector<double> joint_velocity_command_;
+    std::vector<double> joint_velocity_command_;
     std::vector<std::string> joint_name_;
 };
 

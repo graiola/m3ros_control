@@ -55,7 +55,18 @@ set(INCLUDE_DIRS ${INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 find_package(Boost 1.34 COMPONENTS filesystem system serialization REQUIRED)
 set(LIBRARIES ${LIBRARIES} ${Boost_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${PROJECT_INCLUDE_DIR})
-
+###############################################################################
+# Find Yamlcpp
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(YAMLCPP REQUIRED yaml-cpp)
+if(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
+find_package(YamlCpp  REQUIRED)
+set_property(
+   DIRECTORY
+   PROPERTY COMPILE_DEFINITIONS YAMLCPP_05
+   )
+endif(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
+link_directories(${YAMLCPP_LIBRARY_DIRS})
 ###################################
 ## catkin specific configuration ##
 ###################################

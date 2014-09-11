@@ -12,7 +12,7 @@ set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
 
 ###############################################################################
 # Set where to find the FindXXX.cmake
-#set(CMAKE_MODULE_PATH "${PROJECT_ROOT}/../meka-cmake-modules/Modules/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_ROOT}/cmake/Modules/" ${CMAKE_MODULE_PATH})
 
 ###############################################################################
 # Set all bunch of usefull variables
@@ -34,9 +34,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBRARY_OUTPUT_DIRECTORY})
 # Include directories
 include_directories(
     ${PROJECT_INCLUDE_DIR}
-    ${CMAKE_BINARY_DIR}/src # Include this directory for the generated protobufs headers
+    ${CMAKE_CURRENT_BINARY_DIR}/src # Include this directory for the generated protobufs headers
 )
-
 ###############################################################################
 # Add the main project src dir that contains all the others
 add_subdirectory(src/m3ros_control)
@@ -45,3 +44,5 @@ add_subdirectory(src/m3ros_control)
 ###############################################################################
 # Generate the setup.bash
 configure_file(setup.bash.in ${PROJECT_ROOT}/setup.bash)
+# Generate the robot config file (the lib path is hardcoded) 
+configure_file(${PROJECT_ROOT}/robot_config/m3_config.yml.in ${PROJECT_ROOT}/robot_config/m3_config.yml)
