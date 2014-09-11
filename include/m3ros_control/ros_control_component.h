@@ -37,19 +37,15 @@ extern "C"{
 ////////// Some defs
 #define mm2m(a)	(mReal((a))/1000) //millimeters to meters
 #define m2mm(a)	(mReal((a))*1000) //meters to millimeters
-
-////////// Activate some timing infos
-//#define TIMING
 #define NANO2SEC(a)	a/1e9
 #define SEC2NANO(a)	a*1e9
 
+////////// Activate some timing infos
 static int tmp_dt_status_;
 static int tmp_dt_cmd_;
-
 static long long start_dt_status_,  end_dt_status_, elapsed_dt_status_;
 static long long start_dt_cmd_,     end_dt_cmd_,    elapsed_dt_cmd_;
-
-#ifndef NDEBUG
+#ifdef TIMING
 #define TIME_ACTIVE 1
 #else
 #define TIME_ACTIVE 0

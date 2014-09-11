@@ -2,7 +2,7 @@
 #project(m3ros_control)
 
 set(CMAKE_CXX_FLAGS "-Wall -std=c++0x")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -DTIMING")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Find catkin macros and libraries

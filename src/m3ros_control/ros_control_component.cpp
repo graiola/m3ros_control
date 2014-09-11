@@ -54,11 +54,11 @@ void RosControlComponent::StepStatus()
 {
     if(!skip_loop_)
     {
-        //SAVE_TIME(start_dt_status_);
+        SAVE_TIME(start_dt_status_);
         hw_ptr_->read();
         cm_ptr_->update(ros::Time::now(),period_);
-        //SAVE_TIME(end_dt_status_);
-        //PRINT_TIME(start_dt_status_,end_dt_status_,tmp_dt_status_,"status");
+        SAVE_TIME(end_dt_status_);
+        PRINT_TIME(start_dt_status_,end_dt_status_,tmp_dt_status_,"status");
     }
     else
         if(loop_cnt_%1000==0){
@@ -72,10 +72,10 @@ void RosControlComponent::StepCommand()
 {
     if(!skip_loop_)
     {
-        //SAVE_TIME(start_dt_cmd_);
+        SAVE_TIME(start_dt_cmd_);
         hw_ptr_->write();
-        //SAVE_TIME(end_dt_cmd_);
-        //PRINT_TIME(start_dt_cmd_,end_dt_cmd_,tmp_dt_cmd_,"cmd");
+        SAVE_TIME(end_dt_cmd_);
+        PRINT_TIME(start_dt_cmd_,end_dt_cmd_,tmp_dt_cmd_,"cmd");
     }
 
     loop_cnt_++;
