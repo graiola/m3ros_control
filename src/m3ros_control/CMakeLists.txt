@@ -1,8 +1,8 @@
 #cmake_minimum_required(VERSION 2.8.3)
 #project(m3ros_control)
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++0x")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -DTIMING")
+set(CMAKE_CXX_FLAGS "-std=c++0x")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -Wall -DTIMING")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Find catkin macros and libraries
@@ -23,7 +23,7 @@ set(INCLUDE_DIRS ${INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 ###############################################################################
 # Find RTAI
 find_package(RTAI REQUIRED)
-set(LIBRARIES ${LIBRARIES} ${RTAI_LIBRARIES})
+set(LIBRARIES ${LIBRARIES} ${RTAI_LIBRARY})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${RTAI_INCLUDE_DIR})
 
 ###############################################################################
@@ -66,7 +66,8 @@ set_property(
    PROPERTY COMPILE_DEFINITIONS YAMLCPP_05
    )
 endif(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
-link_directories(${YAMLCPP_LIBRARY_DIRS})
+set(LIBRARIES ${LIBRARIES} ${YAMLCPP_LIBRARIES})
+set(INCLUDE_DIRS ${INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIR})
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -101,4 +102,3 @@ add_library(${PROJECT_NAME} ros_control_component.cpp factory_proxy.cpp ros_cont
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
-
