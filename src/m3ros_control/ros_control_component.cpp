@@ -21,7 +21,7 @@ bool RosControlComponent::LinkDependentComponents()
 
 void RosControlComponent::Startup()
 {
-    period_.fromSec(1/static_cast<double>(RT_TASK_FREQUENCY));
+    period_.fromSec(1.0/static_cast<double>(RT_TASK_FREQUENCY));
     if(!RosInit(bot_shr_ptr_)) //NOTE here the bot_shr_ptr_ is correctly loaded
         skip_loop_ = true;
     INIT_CNT(tmp_dt_status_);

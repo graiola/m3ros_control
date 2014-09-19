@@ -86,6 +86,8 @@ public:
             joint_mode_ = POSITION;
         else if(hw_interface_mode == "effort")
             joint_mode_ = EFFORT;
+        else if(hw_interface_mode == "velocity")
+            joint_mode_ = VELOCITY;
         else
             joint_mode_ = POSITION;
 
@@ -96,7 +98,11 @@ public:
         // Set the number of dof
         ndof_right_arm_ = bot_shr_ptr_->GetNdof(RIGHT_ARM);
         ndof_left_arm_ = bot_shr_ptr_->GetNdof(LEFT_ARM);
-        ndof_ = ndof_right_arm_ + ndof_left_arm_;
+        ndof_head_ = bot_shr_ptr_->GetNdof(HEAD);
+        ndof_right_hand_ = bot_shr_ptr_->GetNdof(RIGHT_HAND);
+        ndof_left_hand_ = bot_shr_ptr_->GetNdof(LEFT_HAND);
+
+        ndof_ = ndof_right_arm_ + ndof_left_arm_ + ndof_head_ + ndof_right_hand_ + ndof_left_hand_;
 
         joint_name_.resize(ndof_);
         joint_position_.resize(ndof_);
@@ -118,7 +124,9 @@ public:
 
         // Populate hardware interfaces
         // RIGHT_ARM
-        for(int i=0; i<ndof_right_arm_; i++)
+        istart_ = 0;
+        iend_ = ndof_right_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
             joint_name_[i] = "right_arm_j"+std::to_string(i);
             js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
@@ -130,9 +138,11 @@ public:
 
         }
         // LEFT_ARM
-        for(int i=ndof_right_arm_; i<ndof_; i++)
+        istart_+=ndof_right_arm_;
+        iend_+=ndof_left_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
-            joint_name_[i] = "left_arm_j"+std::to_string(i-ndof_right_arm_);
+            joint_name_[i] = "left_arm_j"+std::to_string(i-istart_);
             js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
             pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
             ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
@@ -142,6 +152,48 @@ public:
 
         }
 
+        // HEAD
+        istart_+=ndof_left_arm_;
+        iend_+=ndof_head_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_name_[i] = "head_j"+std::to_string(i-istart_);
+            js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
+            pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
+            ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
+            vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
+
+            //jm_interface_.registerHandle(JointModeHandle(joint_name_[i], &joint_mode_[i]));
+
+        }
+        // RIGHT HAND
+        istart_+=ndof_head_;
+        iend_+=ndof_right_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_name_[i] = "right_hand_j"+std::to_string(i-istart_);
+            js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
+            pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
+            ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
+            vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
+
+            //jm_interface_.registerHandle(JointModeHandle(joint_name_[i], &joint_mode_[i]));
+
+        }
+        // LEFT HAND
+        istart_+=ndof_right_hand_;
+        iend_+=ndof_left_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_name_[i] = "left_hand_j"+std::to_string(i-istart_);
+            js_interface_.registerHandle(JointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
+            pj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
+            ej_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
+            vj_interface_.registerHandle(JointHandle(js_interface_.getHandle(joint_name_[i]), &joint_velocity_command_[i]));
+
+            //jm_interface_.registerHandle(JointModeHandle(joint_name_[i], &joint_mode_[i]));
+
+        }
         registerInterface(&js_interface_);
         registerInterface(&pj_interface_);
         registerInterface(&ej_interface_);
@@ -151,76 +203,179 @@ public:
 
     void read()
     {	// RIGHT_ARM
-        for(int i=0; i<ndof_right_arm_; i++)
+        istart_ = 0;
+        iend_ = ndof_right_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
             joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(RIGHT_ARM,i));
             joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(RIGHT_ARM,i));
             joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(RIGHT_ARM,i));// mNm -> Nm
         }
         // LEFT_ARM
-        for(int i=ndof_right_arm_; i<ndof_; i++)
+        istart_+=ndof_right_arm_;
+        iend_+=ndof_left_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
-            joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(LEFT_ARM,i));
-            joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(LEFT_ARM,i));
-            joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(LEFT_ARM,i));// mNm -> Nm
+            joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(LEFT_ARM,i-istart_));
+            joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(LEFT_ARM,i-istart_));
+            joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(LEFT_ARM,i-istart_));// mNm -> Nm
+        }
+        // HEAD
+        istart_+=ndof_left_arm_;
+        iend_+=ndof_head_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(HEAD,i-istart_));
+            joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(HEAD,i-istart_));
+            joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(HEAD,i-istart_));// mNm -> Nm
+        }
+        // RIGHT HAND
+        istart_+=ndof_head_;
+        iend_+=ndof_right_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(RIGHT_HAND,i-istart_));
+            joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(RIGHT_HAND,i-istart_));
+            joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(RIGHT_HAND,i-istart_));// mNm -> Nm
+        }
+        // LEFT HAND
+        istart_+=ndof_right_hand_;
+        iend_+=ndof_left_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            joint_position_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDeg(LEFT_HAND,i-istart_));
+            joint_velocity_[i] = DEG2RAD(bot_shr_ptr_->GetThetaDotDeg(LEFT_HAND,i-istart_));
+            joint_effort_[i] = mm2m(bot_shr_ptr_->GetTorque_mNm(LEFT_HAND,i-istart_));// mNm -> Nm
         }
     }
 
     void write()
     {
+        //if (safety_check())
         bot_shr_ptr_->SetMotorPowerOn();
-
         // RIGHT_ARM
-        for(int i=0; i<ndof_right_arm_; i++)
+        istart_ = 0;
+        iend_ = ndof_right_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
-            bot_shr_ptr_->SetStiffness(RIGHT_ARM,i,1.0);
-            bot_shr_ptr_->SetSlewRateProportional(RIGHT_ARM,i,1.0);
+            bot_shr_ptr_->SetStiffness(RIGHT_ARM,i-istart_,1.0);
+            bot_shr_ptr_->SetSlewRateProportional(RIGHT_ARM,i-istart_,1.0);
             switch (joint_mode_)
             {
             case VELOCITY:
-                bot_shr_ptr_->SetModeThetaDotGc(RIGHT_ARM,i-ndof_right_arm_);
-                bot_shr_ptr_->SetThetaDotDeg(RIGHT_ARM,i-ndof_right_arm_,RAD2DEG(joint_velocity_command_[i]));
+                bot_shr_ptr_->SetModeThetaDotGc(RIGHT_ARM,i-istart_);
+                bot_shr_ptr_->SetThetaDotDeg(RIGHT_ARM,i-istart_,RAD2DEG(joint_velocity_command_[i]));
                 break;
             case POSITION:
-                bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i);
-                bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i,RAD2DEG(joint_position_command_[i]));
+                bot_shr_ptr_->SetModeThetaGc(RIGHT_ARM,i-istart_);
+                bot_shr_ptr_->SetThetaDeg(RIGHT_ARM,i-istart_,RAD2DEG(joint_position_command_[i]));
                 break;
             case EFFORT:
-                bot_shr_ptr_->SetModeTorqueGc(RIGHT_ARM,i);
-                bot_shr_ptr_->SetTorque_mNm(RIGHT_ARM,i,m2mm(joint_effort_command_[i]));
+                bot_shr_ptr_->SetModeTorqueGc(RIGHT_ARM,i-istart_);
+                bot_shr_ptr_->SetTorque_mNm(RIGHT_ARM,i-istart_,m2mm(joint_effort_command_[i]));
                 break;
             default:
                 break;
             }
         }
         // LEFT_ARM
-        for(int i=ndof_right_arm_; i<ndof_; i++)
+        istart_+=ndof_right_arm_;
+        iend_+=ndof_left_arm_;
+        for(int i=istart_; i<iend_; i++)
         {
-            bot_shr_ptr_->SetStiffness(LEFT_ARM,i-ndof_right_arm_,1.0);
-            bot_shr_ptr_->SetSlewRateProportional(LEFT_ARM,i-ndof_right_arm_,1.0);
+            bot_shr_ptr_->SetStiffness(LEFT_ARM,i-istart_,1.0);
+            bot_shr_ptr_->SetSlewRateProportional(LEFT_ARM,i-istart_,1.0);
             switch (joint_mode_)
             {
             case VELOCITY:
-                bot_shr_ptr_->SetModeThetaDotGc(LEFT_ARM,i-ndof_right_arm_);
-                bot_shr_ptr_->SetThetaDotDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_velocity_command_[i]));
+                bot_shr_ptr_->SetModeThetaDotGc(LEFT_ARM,i-istart_);
+                bot_shr_ptr_->SetThetaDotDeg(LEFT_ARM,i-istart_,RAD2DEG(joint_velocity_command_[i]));
                 break;
             case POSITION:
-                bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i-ndof_right_arm_);
-                bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i-ndof_right_arm_,RAD2DEG(joint_position_command_[i]));
+                bot_shr_ptr_->SetModeThetaGc(LEFT_ARM,i-istart_);
+                bot_shr_ptr_->SetThetaDeg(LEFT_ARM,i-istart_,RAD2DEG(joint_position_command_[i]));
                 break;
             case EFFORT:
-                bot_shr_ptr_->SetModeTorqueGc(LEFT_ARM,i-ndof_right_arm_);
-                bot_shr_ptr_->SetTorque_mNm(LEFT_ARM,i-ndof_right_arm_,m2mm(joint_effort_command_[i]));
+                bot_shr_ptr_->SetModeTorqueGc(LEFT_ARM,i-istart_);
+                bot_shr_ptr_->SetTorque_mNm(LEFT_ARM,i-istart_,m2mm(joint_effort_command_[i]));
                 break;
             default:
                 break;
             }
         }
+        // HEAD
+        istart_+=ndof_left_arm_;
+        iend_+=ndof_head_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            bot_shr_ptr_->SetStiffness(HEAD,i-istart_,1.0);
+            bot_shr_ptr_->SetSlewRateProportional(HEAD,i-istart_,1.0);
+            switch (joint_mode_)
+            {
+            case POSITION:
+                bot_shr_ptr_->SetModeTheta(HEAD,i-istart_);
+                bot_shr_ptr_->SetThetaDeg(HEAD,i-istart_,RAD2DEG(joint_position_command_[i]));
+                break;
+            default:
+                break;
+            }
+        }
+        // RIGHT_HAND
+        istart_+=ndof_head_;
+        iend_+=ndof_right_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            bot_shr_ptr_->SetStiffness(RIGHT_HAND,i-istart_,1.0);
+            bot_shr_ptr_->SetSlewRateProportional(RIGHT_HAND,i-istart_,1.0);
+            switch (joint_mode_)
+            {
+            case VELOCITY:
+                bot_shr_ptr_->SetModeThetaDotGc(RIGHT_HAND,i-istart_);
+                bot_shr_ptr_->SetThetaDotDeg(RIGHT_HAND,i-istart_,RAD2DEG(joint_velocity_command_[i]));
+                break;
+            case POSITION:
+                bot_shr_ptr_->SetModeThetaGc(RIGHT_HAND,i-istart_);
+                bot_shr_ptr_->SetThetaDeg(RIGHT_HAND,i-istart_,RAD2DEG(joint_position_command_[i]));
+                break;
+            case EFFORT:
+                bot_shr_ptr_->SetModeTorqueGc(RIGHT_HAND,i-istart_);
+                bot_shr_ptr_->SetTorque_mNm(RIGHT_HAND,i-istart_,m2mm(joint_effort_command_[i]));
+                break;
+            default:
+                break;
+            }
+        }
+        // LEFT_HAND
+        istart_+=ndof_right_hand_;
+        iend_+=ndof_left_hand_;
+        for(int i=istart_; i<iend_; i++)
+        {
+            bot_shr_ptr_->SetStiffness(LEFT_HAND,i-istart_,1.0);
+            bot_shr_ptr_->SetSlewRateProportional(LEFT_HAND,i-istart_,1.0);
+            switch (joint_mode_)
+            {
+            case VELOCITY:
+                bot_shr_ptr_->SetModeThetaDotGc(LEFT_HAND,i-istart_);
+                bot_shr_ptr_->SetThetaDotDeg(LEFT_HAND,i-istart_,RAD2DEG(joint_velocity_command_[i]));
+                break;
+            case POSITION:
+                bot_shr_ptr_->SetModeThetaGc(LEFT_HAND,i-istart_);
+                bot_shr_ptr_->SetThetaDeg(LEFT_HAND,i-istart_,RAD2DEG(joint_position_command_[i]));
+                break;
+            case EFFORT:
+                bot_shr_ptr_->SetModeTorqueGc(LEFT_HAND,i-istart_);
+                bot_shr_ptr_->SetTorque_mNm(LEFT_HAND,i-istart_,m2mm(joint_effort_command_[i]));
+                break;
+            default:
+                break;
+            }
+        }
+
     }
 
 private:
 
-    int ndof_right_arm_, ndof_left_arm_, ndof_;
+    int istart_,iend_,ndof_right_arm_, ndof_left_arm_,ndof_head_,ndof_right_hand_,ndof_left_hand_, ndof_;
 
     m3::M3Humanoid* bot_shr_ptr_;
 

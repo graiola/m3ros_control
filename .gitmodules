@@ -1,6 +1,4 @@
-[submodule "meka-cmake-modules"]
-	path = meka-cmake-modules
-	url = git@bitbucket.org:ensta/meka-cmake-modules.git
+
 [submodule "cmake"]
 	path = cmake
-	url = git@bitbucket.org:ensta/meka-cmake-modules.git
+	url = https://github.com/ahoarau/meka-cmake-modules.git
